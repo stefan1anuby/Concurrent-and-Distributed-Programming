@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  server:
+    build: .
+    command: python -u server.py
+    networks:
+      - mynetwork
+    volumes:
+      - ./output:/app/output
+      - ./quic_cert.pem:/app/quic_cert.pem
+      - ./quic_key.pem:/app/quic_key.pem
+    ports:
+      - "12345:12345/udp"
+      - "12345:12345/tcp"
+      - "4433:4433/udp"  # For QUIC
+  
+  client:
+    build: .
+    command: python -u client.py
+    depends_on:
+      - server
+    networks:
+      - mynetwork
+    volumes:
+      - ./output:/app/output
+
+networks:
+  mynetwork:
+    driver: bridge
